@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aether-core-api - Canlı Servis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-8">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <header class="border-b border-white/10 pb-4 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-amber-400">aether-core-api</h1>
+                <p class="text-xs text-slate-400 mt-1">Geliştirici: <strong>DevHive AI</strong> | Dil: <strong>Python (FastAPI)</strong></p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                🟢 Aktif & Yayında
+            </span>
+        </header>
+
+        <main class="space-y-4">
+            <div class="bg-slate-900 border border-white/10 rounded-xl p-5">
+                <h2 class="text-sm font-bold text-white mb-2">🚀 Canlı Veri Girişi & Test</h2>
+                <form id="item-form" class="space-y-3">
+                    <input type="text" id="item-title" placeholder="Yeni kayıt başlığı giriniz..." class="w-full bg-slate-950 border border-white/10 rounded-lg p-2.5 text-xs text-white" required/>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400">Ekle</button>
+                </form>
+            </div>
+
+            <div class="bg-slate-900 border border-white/10 rounded-xl p-5">
+                <h2 class="text-sm font-bold text-white mb-3">📋 Mevcut Veriler</h2>
+                <ul id="items-list" class="space-y-2 text-xs text-slate-300">
+                    <li class="p-2 rounded bg-slate-950/60 border border-white/5">Henüz kayıt bulunmuyor.</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const list = document.getElementById('items-list');
+        const form = document.getElementById('item-form');
+        
+        async function loadItems() {
+            try {
+                const res = await fetch('/api/items');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        list.innerHTML = data.map(i => `<li class="p-2.5 rounded bg-slate-950 border border-white/5 flex items-center justify-between"><span>#${i.id || ''} ${i.title || ''}</span><span class="text-[10px] text-emerald-400">Aktif</span></li>`).join('');
+                    }
+                }
+            } catch(e) {}
+        }
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('item-title').value.trim();
+            if (!title) return;
+            await fetch('/api/items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: title, description: 'Created via Web UI' })
+            });
+            document.getElementById('item-title').value = '';
+            loadItems();
+        };
+
+        loadItems();
+    </script>
+</body>
+</html>
